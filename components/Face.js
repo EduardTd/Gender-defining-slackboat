@@ -1,7 +1,6 @@
 const openCV = require('opencv4nodejs');
 
 class Face {
-
     /**
      * @param {Mat} image
      */

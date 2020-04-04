@@ -1,34 +1,31 @@
-require('dotenv').config();
-const Fs = require('fs');
-const Path = require('path');
-const Axios = require('axios');
-
-const IMAGE_DIRECTORY = '../../public/images';
+const OpenCV = require('opencv4nodejs');
+const GetChatImage = require('../requests/GetChatImage');
 
 class ImageService {
-
     /**
      * @param {String} downloadUrl
-     * @param {String} imageName
      */
-    constructor(downloadUrl, imageName) {
+    constructor(downloadUrl) {
         this.downloadUrl = downloadUrl;
-        this.imageName = imageName;
-        this.downloadedImg = null;
-        this.writer = null;
+        this.downloadedImage = null;
+        this.imgBuffer = null;
     }
 
-    async getImagePath() {
+    /**
+     * @returns {Promise<Mat>}
+     */
+    async getMatImage() {
         await this.download();
-        this.save();
+        this.setImgBuffer();
 
         return new Promise((resolve, reject) => {
-            this.writer.on('finish', () => {
-                resolve(this.getPath())
-            });
-            this.writer.on('error', (error) => {
-                reject
-            });
+            try {
+                return resolve(
+                    OpenCV.imdecode(this.imgBuffer)
+                )
+            } catch (error) {
+                return reject(error);
+            }
         });
     }
 
@@ -37,36 +34,17 @@ class ImageService {
             throw new Error('No downloadUrl');
         }
 
-        this.downloadedImg = await Axios({
-            url: this.downloadUrl,
-            method: 'GET',
-            responseType: 'stream',
-            headers: {
-                Authorization: `Bearer ${process.env.SLACK_AUTH_TOKEN}`
-            }
-        });
+        this.downloadedImage = await new GetChatImage(this.downloadUrl).response;
 
         return this;
     }
 
-    save() {
-        if (!this.imageName || ! this.downloadedImg || !this.downloadedImg.data) {
-            throw new Error('No imageName or downloadedImg');
+    setImgBuffer() {
+        if (!this.downloadedImage || !this.downloadedImage.data) {
+            return this;
         }
 
-        this.writer = this.getWriter();
-
-        this.downloadedImg.data.pipe(this.writer);
-    }
-
-    getWriter() {
-        const path = this.getPath();
-
-        return Fs.createWriteStream(path);
-    }
-
-    getPath() {
-        return Path.resolve(__dirname, IMAGE_DIRECTORY, this.imageName);
+        this.imgBuffer = this.downloadedImage.data;
     }
 }
 

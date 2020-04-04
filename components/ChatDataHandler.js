@@ -1,5 +1,4 @@
 class ChatDataHandler {
-
     /**
      * @param {Object} chatData
      */
@@ -12,27 +11,21 @@ class ChatDataHandler {
     }
 
     extractImageInfo() {
-        if (!this.hasAvailableImage())   {
-            return {}
+        if (!this.hasAvailableImage()) {
+            return {};
         }
 
         return this.getFromFileList();
     }
 
     getFromFileList() {
-        const {
-            name: imageName,
-            url_private_download: downloadUrl
-        } = this.chatData.files[0];
+        const { url_private_download: downloadUrl } = this.chatData.files[0];
 
-        if (!imageName || !downloadUrl) {
+        if (!downloadUrl) {
             return {};
         }
 
-        return {
-            imageName,
-            downloadUrl
-        }
+        return { downloadUrl }
     }
 
     hasAvailableImage(chatData = this.chatData) {
