@@ -40,7 +40,9 @@ class Chat {
         this._jokeService
             .getJoke()
             .then((message) => {
-                this._slackBot.sendMessage(message);
+                const chatMessage = `I can't determine your gender  :confused: \r\n So, my joke. ${message}`;
+
+                this._slackBot.sendMessage(chatMessage);
             });
     }
 

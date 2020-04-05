@@ -5,7 +5,7 @@ class SlackBot {
     constructor() {
         this._chatDataHandler = new ChatDataHandler({});
         this.token = `${process.env.SLACK_AUTH_TOKEN}`;
-        this.botName = `${process.env.NOT_NAME}`;
+        this.botName = `${process.env.BOT_NAME}`;
         this.chanelName = `${process.env.CHANEL_NAME}`;
         this.bot = {};
         this.messageCallback = () => {};
